@@ -1,12 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
+
 <body>
+    <div class="user-container">
+
+    </div>
+
     <script src="app.js"></script>
 </body>
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .hide{
+        display: none;
+    }
+    .show{
+        display: block;
+    }
+    .user-container{
+        border: 2px solid #000;
+        line-height: 30px;
+    }
+    .user-container .name,
+    .user-container .name ~ div{
+        padding: 0 15px;
+    }
+    .name{
+        background-color: paleturquoise;
+        border: 1px solid #000;
+    }
+</style>
 </html>

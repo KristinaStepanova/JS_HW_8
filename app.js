@@ -1,0 +1,54 @@
+const userContainer = document.querySelector('.user-container');
+
+function makeGetRequest(method, url, cb) {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.addEventListener('load', () => {
+        const resBody = JSON.parse(xhr.responseText);
+        cb(resBody);
+    });
+    xhr.send();
+}
+
+makeGetRequest('GET', 'https://jsonplaceholder.typicode.com/users', res => {
+    renderUsers(res);
+});
+
+function renderUsers(users) {
+    users.forEach(user => {
+        const fragment = document.createDocumentFragment();
+        const div = document.createElement('div');
+        const name = document.createElement('div');
+        const content = document.createElement('ul');
+        const username = document.createElement('li');
+        const email = document.createElement('li');
+        const phone = document.createElement('li');
+        const website = document.createElement('li');
+        name.textContent = user.name;
+        name.classList.add('name');
+        username.textContent = user.username;
+        email.textContent = user.email;
+        phone.textContent = user.phone;
+        website.textContent = user.website;
+        content.classList.add('hide');
+        content.appendChild(username);
+        content.appendChild(email);
+        content.appendChild(phone);
+        content.appendChild(website);
+        div.appendChild(name);
+        div.appendChild(content);
+        fragment.appendChild(div);
+        userContainer.appendChild(fragment);
+    });
+}
+
+userContainer.addEventListener('click', toggleUserBody);
+
+function toggleUserBody(e) {
+    const {target} = e;
+    const userBody = target.nextElementSibling;
+    userBody.classList.toggle('hide');
+    userBody.classList.toggle('show');
+}
+
+
