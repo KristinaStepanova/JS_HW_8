@@ -1,59 +1,66 @@
 const userContainer = document.querySelector(".user-container");
 
-function makeGetRequest(method, url, cb) {
+function makeGetRequest(url, cb) {
     const xhr = new XMLHttpRequest();
-    xhr.open(method, url);
+    xhr.open("GET", url);
+
     xhr.addEventListener("load", () => {
         const resBody = JSON.parse(xhr.responseText);
         cb(resBody);
     });
+
+    xhr.addEventListener("error", () => {
+        alert("error");
+    });
+
     xhr.send();
 }
 
-function makePostRequest(method, url, body, cb) {
+function makePostRequest(url, body, cb) {
     const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
 
-    xhr.open(method, url);
-
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    xhr.addEventListener('load', () => {
+    xhr.addEventListener("load", () => {
         const resBody = JSON.parse(xhr.responseText);
         cb(resBody);
     });
+
+    xhr.setRequestHeader("Content-Type", "multipart/form-data");
+
+    xhr.addEventListener("error", () => {
+        alert("error");
+    });
+
     xhr.send(JSON.stringify(body));
 }
 
-makeGetRequest("GET", "https://jsonplaceholder.typicode.com/users", res => {
+makeGetRequest("https://jsonplaceholder.typicode.com/users", res => {
     renderUsers(res);
 });
 
+function createTemplate(user) {
+    return `
+    <div>
+      <div class="name">
+        ${user.name}
+      </div>
+      <ul class="content hide">
+        <li>${user.username}</li>
+        <li>${user.email}</li>
+        <li>${user.phone}</li>
+        <li>${user.website}</li>
+      </ul>
+  </div>`;
+}
+
 function renderUsers(users) {
+    let fragment = "";
+
     users.forEach(user => {
-        const fragment = document.createDocumentFragment();
-        const div = document.createElement("div");
-        const name = document.createElement("div");
-        const content = document.createElement("ul");
-        const username = document.createElement("li");
-        const email = document.createElement("li");
-        const phone = document.createElement("li");
-        const website = document.createElement("li");
-        name.textContent = user.name;
-        name.classList.add("name");
-        username.textContent = user.username;
-        email.textContent = user.email;
-        phone.textContent = user.phone;
-        website.textContent = user.website;
-        content.classList.add("hide");
-        content.appendChild(username);
-        content.appendChild(email);
-        content.appendChild(phone);
-        content.appendChild(website);
-        div.appendChild(name);
-        div.appendChild(content);
-        fragment.appendChild(div);
-        userContainer.appendChild(fragment);
+        fragment += createTemplate(user);
     });
+
+    userContainer.insertAdjacentHTML("afterbegin", fragment);
 }
 
 userContainer.addEventListener("click", toggleUserBody);
@@ -72,36 +79,39 @@ const inputUsername = form.elements["username"];
 const inputPhone = form.elements["phone"];
 const inputWebsite = form.elements["website"];
 
-form.addEventListener("submit", onFormSubmitHandler);
+form.addEventListener("submit", e => onFormSubmitHandler(e));
 
-function onFormSubmitHandler() {
-    const nameValue = inputName.value;
-    const emailValue = inputEmail.value;
-    const usernameValue = inputUsername.value;
-    const phoneValue = inputPhone.value;
-    const websiteValue = inputWebsite.value;
+function onFormSubmitHandler(e) {
+    e.preventDefault();
+    // const nameValue = inputName.value;
+    // const emailValue = inputEmail.value;
+    // const usernameValue = inputUsername.value;
+    // const phoneValue = inputPhone.value;
+    // const websiteValue = inputWebsite.value;
 
-    if (
-        !nameValue ||
-        !emailValue ||
-        !usernameValue ||
-        !phoneValue ||
-        !websiteValue
-    ) {
-        alert("Заполните все поля");
-        return;
+    let formData = new FormData(userForm);
+    console.log(userForm);
+    
+    for (let [name, value] of formData) {
+        if (!value) {
+            alert("Заполните все поля");
+            return;
+        }
     }
 
-    makePostRequest("POST", "https://jsonplaceholder.typicode.com/users", {
-        name: nameValue,
-        email: emailValue,
-        username: usernameValue,
-        phone: phoneValue,
-        website: websiteValue
-    },
+    makePostRequest(
+        "https://jsonplaceholder.typicode.com/users",
+        
+            // name: nameValue,
+            // email: emailValue,
+            // username: usernameValue,
+            // phone: phoneValue,
+            // website: websiteValue
+            formData
+        ,
         res => {
-            //renderUsers(res);
             console.log(res);
+            userContainer.insertAdjacentHTML("afterbegin", createTemplate(res));
         }
     );
 }
